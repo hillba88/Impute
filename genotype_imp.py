@@ -13,9 +13,6 @@ parser.add_argument("-q", help="Minimum quality score")
 
 args = parser.parse_args()
 
-d1 = DiscreteDistribution({'A': 0.25, 'C': 0.25, 'G': 0.25, 'T': 0.25})
-d2 = DiscreteDistribution({'A': 0.10, 'C': 0.40, 'G': 0.40, 'T': 0.10})
-
 '''
 function takes two arguments: a list of state names, and an optional parameter
 specifying a probability distribution to use for each state. The default
@@ -24,7 +21,6 @@ distribution specifies equal probabilities for all nucleotide bases
 def states(name_states, dist=DiscreteDistribution({'A': 0.25, 'C': 0.25,
                                                    'G': 0.25, 'T': 0.25}))
     count = 0
-
     try:
         for x in range(len(name_states)):
             "s{0}".format(x) = State(dist, name=name_states[counter])
@@ -44,8 +40,17 @@ def transition_probs(num_states, ):
     for x in range(states):
 
 
+transition = np.matrix([[0.9990, 0.00010, 0.00300, 0.00010, 0.0005],
+                        [0.0002, 0.99900, 0.00005, 0.00005, 0.0002],
+                        [0.0002, 0.00005, 0.99900, 0.00005, 0.0002],
+                        [0.0002, 0.00005, 0.00005, 0.99900, 0.0002],
+                        [0.0005, 0.00010, 0.00030, 0.00010, 0.9990]])
 
-
+emission = np.matrix([[0.998, 0.001, 0.001],
+                      [0.600, 0.200, 0.200],
+                      [0.400, 0.200, 0.400],
+                      [0.200, 0.200, 0.600],
+                      [0.001, 0.001, 0.998]])
 
 hmm.add_transition( s1, s1, 0.5 )
 hmm.add_transition( s1, s2, 0.5 )
