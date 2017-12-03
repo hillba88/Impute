@@ -23,6 +23,7 @@ def states(name_states, dist=DiscreteDistribution({'A': 0.25, 'C': 0.25,
                                                    'G': 0.25, 'T': 0.25}))
     count = 0
     state_list = []
+
     try:
         for x in range(len(name_states)):
             "s{0}".format(x) = State(dist, name=name_states[counter])
@@ -47,15 +48,13 @@ def transition(states, transition):
         hmm.add_transition(hmm.start, item, start_prob)
 
     for x in range(len(states)):
-        hmm.add_transition(states[x], states[x], transition[x,x])
-        for y in range(x+1, len(states)):
+        for y in range(len(states)):
             hmm.add_transition(states[x], states[y], transition[y,x])
 
     hmm.bake()
 
-
 '''
-Transition and emission probabilities obtained from
+Transition and emission probabilities obtained from:
     Swarts et al. (2014) Novel Methods to Optimize Genotypic Imputation for
     Low-Coverage, Next-Generation Sequence Data in Crop Plants. The Plant
     Genome, doi:10.3835/plantgenome2014.05.0023
