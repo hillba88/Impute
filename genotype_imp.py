@@ -53,30 +53,49 @@ def transition(states, transition):
 
     hmm.bake()
 
-def chromosome_dict(chr, file):
-    chr_pos = {}
-    try:
-        with open(file, 'r') as snp_file:
-            for line in snp_file:
-                chr_pos.setdefault(chr, [])
-                chr_pos[chr].append(line[0])
-    except IOError:
-        print("Invalid file path!")
 
-    return chr_pos
+class variants():
 
-def genotype_dict(file):
-    geno_dict = {}
-    try:
-        with open(file, 'r') as snp_file:
-            for line in snp_file:
-                geno_dict.setdefault(line[0], [])
-                for item in line[8].split():
-                    geno_dict[line[0]].append(item)
-    except IOError:
-        print("Invalid file path!")
+    def __init__(self, file, chr):
+        self.file = file
+        self.chr = chr
 
-    return geno_dict
+    '''
+    loops through self.file and populates a dictionary with self.chr and a list
+    of the samples as the keys and values, respectively
+    '''
+    def chromosome_dict(self):
+        chr_pos = {}
+        try:
+            with open(self.file, 'r') as snp_file:
+                for line in snp_file:
+                    chr_pos.setdefault(self.chr, [])
+
+                    for x in snp_file[9].split():
+                        chr_pos[self.chr].append(x)
+
+        except IOError:
+            print("Invalid file path!")
+
+        return chr_pos
+
+    '''
+    loops through self.file and populates a dictionary with each chromosome
+    position and the corresponding sample genotypes
+    '''
+    def genotype_dict(self):
+        geno_dict = {}
+        try:
+            with open(self.file, 'r') as snp_file:
+                for line in snp_file:
+                    geno_dict.setdefault(line[0], [])
+                    for item in line[8].split():
+                        geno_dict[line[0]].append(item)
+
+        except IOError:
+            print("Invalid file path!")
+
+        return geno_dict
 
 '''
 Transition and emission probabilities obtained from:
