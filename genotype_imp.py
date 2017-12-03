@@ -6,10 +6,10 @@ from collections import counter
 from pomegranate import *
 
 parser = argparse.ArumentParser()
-parser.add_argument("path", help="VCF path")
-parser.add_argument("ref", help="Reference haplotypes")
-parser.add_argument("-o", help="Output file path")
-parser.add_argument("-q", help="Minimum quality score")
+parser.add_argument('path', help='VCF path')
+parser.add_argument('ref', help='Reference haplotypes')
+parser.add_argument('-o', help='Output file path')
+parser.add_argument('-q', help='Minimum quality score')
 
 args = parser.parse_args()
 
@@ -26,12 +26,12 @@ def states(name_states, dist=DiscreteDistribution({'A': 0.25, 'C': 0.25,
 
     try:
         for x in range(len(name_states)):
-            "s{0}".format(x) = State(dist, name=name_states[counter])
-            state_list.append("s{0}".format(x))
+            's{0}'.format(x) = State(dist, name=name_states[counter])
+            state_list.append('s{0}'.format(x))
             count += 1
 
     except TypeError:
-        print("{0} must be in list format".format(states))
+        print('{0} must be in list format'.format(states))
 
     return state_list
 
@@ -52,6 +52,31 @@ def transition(states, transition):
             hmm.add_transition(states[x], states[y], transition[y,x])
 
     hmm.bake()
+
+def chromosome_dict(chr, file):
+    chr_pos = {}
+    try:
+        with open(file, 'r') as snp_file:
+            for line in snp_file:
+                chr_pos.setdefault(chr, [])
+                chr_pos[chr].append(line[0])
+    except IOError:
+        print("Invalid file path!")
+
+    return chr_pos
+
+def genotype_dict(file):
+    geno_dict = {}
+    try:
+        with open(file, 'r') as snp_file:
+            for line in snp_file:
+                geno_dict.setdefault(line[0], [])
+                for item in line[8].split():
+                    geno_dict[line[0]].append(item)
+    except IOError:
+        print("Invalid file path!")
+
+    return geno_dict
 
 '''
 Transition and emission probabilities obtained from:
