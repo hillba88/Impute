@@ -101,6 +101,15 @@ class variants():
 
         return geno_dict
 
+    def parse_genotypes(self):
+        genotypes = []
+
+        for vals_list in self.genotype_dict().values():
+            for sample in vals_list:
+                genotypes.append(sample.split(':')[0])
+
+        return genotypes
+
 '''
 Transition and emission probabilities obtained from:
     Swarts et al. (2014) Novel Methods to Optimize Genotypic Imputation for
@@ -120,4 +129,4 @@ emission = np.matrix([[0.998, 0.001, 0.001],
                       [0.001, 0.001, 0.998]])
 
 hapmap = variants(args.path, 1)
-print(hapmap.genotype_dict())
+print(hapmap.parse_genotypes())
