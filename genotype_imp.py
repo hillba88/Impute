@@ -12,6 +12,64 @@ parser.add_argument('-q', help='Minimum quality score')
 
 args = parser.parse_args()
 
+class variants():
+
+    def __init__(self, file, chr):
+        self.file = file
+        self.chr = chr
+
+    '''
+    loops through self.file and populates a dictionary with self.chr and a list
+    of the samples as the keys and values, respectively
+    '''
+    def sample_list(self):
+        samples = []
+
+        try:
+            with open(self.file, 'r') as snp_file:
+                for line in snp_file:
+
+                    if line.startswith("#") and not line.startswith("##"):
+                        line = line.split()
+                        for x in range(9, len(line)):
+                            samples.append(line[x])
+
+        except IOError:
+            print("Invalid file path!")
+
+        return samples
+
+    '''
+    loops through self.file and populates a dictionary with each chromosome
+    position and the corresponding sample genotypes
+    '''
+    def genotype_dict(self):
+        geno_dict = {}
+        try:
+            with open(self.file, 'r') as snp_file:
+                for line in snp_file:
+                    if not line.startswith("#"):
+                        line = line.split()
+                        geno_dict.setdefault(line[1], [])
+
+                        for x in range(9, len(line)):
+                            geno_dict[line[1]].append(line[x])
+
+        except IOError:
+            print("Invalid file path!")
+
+        return geno_dict
+
+    def parse_genotypes(self):
+        genotypes = []
+
+        for vals_list in self.genotype_dict().values():
+            for sample in vals_list:
+                genotypes.append(sample.split(':')[0])
+
+        return genotypes
+
+
 '''
 This function creates states based on two input parameters: a
 list of state names, and an optional parameter specifying a probability
@@ -53,62 +111,6 @@ def transition(states, transition):
 
     hmm.bake()
 
-
-class variants():
-
-    def __init__(self, file, chr):
-        self.file = file
-        self.chr = chr
-
-    '''
-    loops through self.file and populates a dictionary with self.chr and a list
-    of the samples as the keys and values, respectively
-    '''
-    def chromosome_dict(self):
-        chr_pos = {}
-        try:
-            with open(self.file, 'r') as snp_file:
-                for line in snp_file:
-                    if not line.startswith("#"):
-                        chr_pos.setdefault(self.chr, [])
-
-                        for x in snp_file[9].split():
-                            chr_pos[self.chr].append(x)
-
-        except IOError:
-            print("Invalid file path!")
-
-        return chr_pos
-
-    '''
-    loops through self.file and populates a dictionary with each chromosome
-    position and the corresponding sample genotypes
-    '''
-    def genotype_dict(self):
-        geno_dict = {}
-        try:
-            with open(self.file, 'r') as snp_file:
-                for line in snp_file.readlines():
-                    if not line.startswith("#"):
-                        line = line.split()
-                        geno_dict.setdefault(line[0], [])
-
-                        for x in range(9, len(line)):
-                            geno_dict[line[0]].append(line[x])
-
-        except IOError:
-            print("Invalid file path!")
-
-        return geno_dict
-
-    def parse_genotypes(self):
-        genotypes = []
-
-        for vals_list in self.genotype_dict().values():
-            for sample in vals_list:
-                genotypes.append(sample.split(':')[0])
-
-        return genotypes
 
 '''
 Transition and emission probabilities obtained from:
