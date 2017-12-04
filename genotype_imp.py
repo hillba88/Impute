@@ -2,12 +2,11 @@
 
 import argparse
 import numpy as np
-from collections import counter
 from pomegranate import *
 
-parser = argparse.ArumentParser()
+parser = argparse.ArgumentParser()
 parser.add_argument('path', help='VCF path')
-parser.add_argument('ref', help='Reference haplotypes')
+parser.add_argument('--ref', help='Reference haplotypes')
 parser.add_argument('-o', help='Output file path')
 parser.add_argument('-q', help='Minimum quality score')
 
@@ -19,14 +18,15 @@ list of state names, and an optional parameter specifying a probability
 distribution to use for each state. The default distribution specifies
 equal probabilities for all nucleotide bases. Returns list of states
 '''
-def states(name_states, dist=DiscreteDistribution({'A': 0.25, 'C': 0.25,
-                                                   'G': 0.25, 'T': 0.25}))
+def states(name_states, dist=DiscreteDistribution({'A': 0.25, 'C': 0.25, 'G': 0.25, 'T': 0.25})):
+
     count = 0
     state_list = []
 
     try:
         for x in range(len(name_states)):
-            's{0}'.format(x) = State(dist, name=name_states[counter])
+            state = "s{0}".format(x)
+            state = State(dist, name=name_states[counter])
             state_list.append('s{0}'.format(x))
             count += 1
 
@@ -69,10 +69,11 @@ class variants():
         try:
             with open(self.file, 'r') as snp_file:
                 for line in snp_file:
-                    chr_pos.setdefault(self.chr, [])
+                    if not line.startswith("#"):
+                        chr_pos.setdefault(self.chr, [])
 
-                    for x in snp_file[9].split():
-                        chr_pos[self.chr].append(x)
+                        for x in snp_file[9].split():
+                            chr_pos[self.chr].append(x)
 
         except IOError:
             print("Invalid file path!")
@@ -87,10 +88,13 @@ class variants():
         geno_dict = {}
         try:
             with open(self.file, 'r') as snp_file:
-                for line in snp_file:
-                    geno_dict.setdefault(line[0], [])
-                    for item in line[8].split():
-                        geno_dict[line[0]].append(item)
+                for line in snp_file.readlines():
+                    if not line.startswith("#"):
+                        line = line.split()
+                        geno_dict.setdefault(line[0], [])
+
+                        for x in range(9, len(line)):
+                            geno_dict[line[0]].append(line[x])
 
         except IOError:
             print("Invalid file path!")
@@ -102,7 +106,7 @@ Transition and emission probabilities obtained from:
     Swarts et al. (2014) Novel Methods to Optimize Genotypic Imputation for
     Low-Coverage, Next-Generation Sequence Data in Crop Plants. The Plant
     Genome, doi:10.3835/plantgenome2014.05.0023
-''''
+'''
 transition = np.matrix([[0.9990, 0.00010, 0.00300, 0.00010, 0.0005],
                         [0.0002, 0.99900, 0.00005, 0.00005, 0.0002],
                         [0.0002, 0.00005, 0.99900, 0.00005, 0.0002],
@@ -114,3 +118,6 @@ emission = np.matrix([[0.998, 0.001, 0.001],
                       [0.400, 0.200, 0.400],
                       [0.200, 0.200, 0.600],
                       [0.001, 0.001, 0.998]])
+
+hapmap = variants(args.path, 1)
+print(hapmap.genotype_dict())
