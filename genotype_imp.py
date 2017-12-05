@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+import numpy as np
+from pomegranate import *
 
 class variants():
 
@@ -38,28 +40,47 @@ class variants():
                 for line in snp_file:
                     if not line.startswith("#"):
                         line = line.split()
-                        geno_dict.setdefault(line[1], [])
+                        # makes dictionary with pos:ref:alt as key, and list of genotypes as values
+                        key = "{0}:{1}:{2}".format(line[1], line[3], line[4])
+                        geno_dict.setdefault(key, [])
 
                         for x in range(9, len(line)):
-                            geno_dict[line[1]].append(line[x])
+                            geno_dict[key].append(line[x])
 
         except IOError:
             print("Invalid file path!")
 
         return geno_dict
 
+    '''
+    parses genotype_dict, extracts genotypes for each sample, and replaces
+    binary format with corresponding alleles for each SNP
+    '''
     def parse_genotypes(self):
         genotypes = []
 
-        for vals_list in self.genotype_dict().values():
-            for sample in vals_list:
-                genotypes.append(sample.split(':')[0])
+        for idx, vals in enumerate(self.genotype_dict().values()):
+            for sample in vals:
+                genotype = sample.split(':')[0]
+
+                nucs = ''
+                key = self.genotype_dict()
+                for allele in genotype.split('/'):
+                    if allele == 0:
+                        nucs += key[idx].split(':')[1]
+                    elif allele == 1:
+                        nucs += key[idx].split(':')[2][0]
+                    elif allele == 2:
+                        nucs += key[idx].split(':')[2][1]
+                    elif allele == '.':
+                        nucts += '-'
+
+                genotypes.append(nucs)
 
         return genotypes
 
-
 '''
-This function creates states based on two input parameters: a
+This function creates HMM states based on two input parameters: a
 list of state names, and an optional parameter specifying a probability
 distribution to use for each state. The default distribution specifies
 equal probabilities for all nucleotide bases. Returns list of states
@@ -98,8 +119,3 @@ def transition(states, transition):
             hmm.add_transition(states[x], states[y], transition[y,x])
 
     hmm.bake()
-
-
-
-hapmap = variants(args.path, 1)
-print(hapmap.parse_genotypes())
