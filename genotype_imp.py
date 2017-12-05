@@ -4,9 +4,11 @@ from pomegranate import *
 
 class variants():
 
-    def __init__(self, file, chr):
+    def __init__(self, file, chr, out_path, out_name=genotypes):
         self.file = file
         self.chr = chr
+        self.out_path = out_path
+        self.out_name = out_name
 
     '''
     loops through self.file and populates a dictionary with self.chr and a list
@@ -73,11 +75,14 @@ class variants():
                     elif allele == 2:
                         nucs += key[idx].split(':')[2][1]
                     elif allele == '.':
-                        nucts += '-'
+                        nucs += '-'
 
                 genotypes.append(nucs)
 
-        return genotypes
+        with open(self.out_path/self.out_name, 'w') as out_file:
+            out_file.write(genotypes)
+
+        #return genotypes
 
 '''
 This function creates HMM states based on two input parameters: a
