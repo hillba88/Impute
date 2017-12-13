@@ -1,2 +1,5 @@
 # Impute
-Programs to impute missing genotypes
+Program to parse VCF files and use existing Python HMM modules to perform genotype imputation
+
+Currently, VCF parsing is functional, imputation is not. 
+
